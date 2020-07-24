@@ -1,0 +1,77 @@
+[gd_scene load_steps=5 format=2]
+
+[ext_resource path="res://Global Textures/tex_grid_0.png" type="Texture" id=1]
+[ext_resource path="res://Players/Parent/Player.tscn" type="PackedScene" id=2]
+
+[sub_resource type="SpatialMaterial" id=1]
+albedo_texture = ExtResource( 1 )
+uv1_scale = Vector3( 100, 100, 1 )
+
+[sub_resource type="SpatialMaterial" id=2]
+albedo_texture = ExtResource( 1 )
+uv1_scale = Vector3( 75, 75, 75 )
+
+[node name="-1" type="Spatial"]
+
+[node name="CSGBox" type="CSGBox" parent="."]
+transform = Transform( 17.2194, 0, 0, 0, 0.108012, 0, 0, 0, 17.2194, 0, 0, 0 )
+use_collision = true
+material = SubResource( 1 )
+
+[node name="KinematicBody" parent="." instance=ExtResource( 2 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -8.75115, 1.03897, 8.01058 )
+MAX_SPEED = 20.0
+JUMP_SPEED = 18.0
+ACCEL = 5.4
+
+[node name="CSGCylinder" type="CSGCylinder" parent="."]
+transform = Transform( -1.25512e-06, 7.70387, -1.25512e-06, 0, -1.49584e-06, -9.1814, -9.1814, -1.49584e-06, 2.43703e-13, 0, -8.17883, 21.0014 )
+use_collision = true
+sides = 64
+
+[node name="CSGBox2" type="CSGBox" parent="."]
+transform = Transform( 1, 0, 0, 0, 27.3152, 0, 0, 0, 13.4428, 3.25596, 1.00459, 0 )
+use_collision = true
+material = SubResource( 2 )
+
+[node name="CSGBox3" type="CSGBox" parent="."]
+transform = Transform( 1, 0, 0, 0, 0.919108, -3.89583, 0, 0.394006, 9.0879, 1.37081, 2.69911, 4.85298 )
+use_collision = true
+
+[node name="CSGBox6" type="CSGBox" parent="."]
+transform = Transform( 1, 0, 0, 0, 0.766044, -1.25791, 0, 0.642788, 1.49912, -8.53374, 0.396817, 4.848 )
+use_collision = true
+
+[node name="CSGBox7" type="CSGBox" parent="."]
+transform = Transform( -1, -6.69697e-08, -1.0997e-07, 0, 0.642788, -1.49912, 8.74228e-08, -0.766044, -1.25791, -8.54962, 0.916811, 11.4825 )
+use_collision = true
+
+[node name="CSGBox11" type="CSGBox" parent="."]
+transform = Transform( 2.01691e-08, 0.642787, -3.39556, 1, 7.54979e-08, 3.9751e-07, 1.15479e-07, -0.766045, -2.84921, -4.55555, 1.00391, 10.0372 )
+use_collision = true
+depth = 1.22174
+
+[node name="CSGBox12" type="CSGBox" parent="."]
+transform = Transform( 6.43352e-08, 0.428951, -1.76778, 1, 3.88726e-08, 1.75498e-07, 7.35826e-08, -0.903328, -0.839439, -1.25166, 1.02397, 12.7573 )
+use_collision = true
+
+[node name="CSGBox8" type="CSGBox" parent="."]
+transform = Transform( 1, 0, 0, 0, -0.665804, -1.46014, 0, 0.746127, -1.30295, -13.2135, 0.916811, 4.85298 )
+use_collision = true
+
+[node name="CSGBox10" type="CSGBox" parent="."]
+transform = Transform( 1, 0, 0, 0, 0.258819, -1.89028, 0, 0.965926, 0.506498, -11.2979, 0.916811, 4.85298 )
+use_collision = true
+
+[node name="CSGBox9" type="CSGBox" parent="."]
+transform = Transform( -1, 3.25841e-07, -1.03888e-13, 0, -1.62921e-07, -1.95696, -3.25841e-07, -1, 3.18829e-07, -11.2979, 0.916811, 11.4825 )
+use_collision = true
+
+[node name="CSGBox5" type="CSGBox" parent="."]
+transform = Transform( 1, 0, 0, 0, 0.919108, -3.89583, 0, 0.394006, 9.0879, 1.37081, 13.4766, 4.85298 )
+use_collision = true
+depth = 1.96637
+
+[node name="CSGBox4" type="CSGBox" parent="."]
+transform = Transform( 1, 0, 0, 0, 0.937002, 3.45403, 0, -0.349324, 9.26483, -0.446199, 8.54001, 4.85298 )
+use_collision = true
