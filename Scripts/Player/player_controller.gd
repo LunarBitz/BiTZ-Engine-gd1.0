@@ -256,29 +256,29 @@ func apply_input_to_velocity(DeltaTime, input_vect, vect, Acceleration, Deaccele
 	var ControlAcceleration = get_clamped_vector3(input_vect, 1.0)
 	var AnalogInputModifier = (ControlAcceleration.length() if ControlAcceleration.length_squared() > 0.0 else 0.0)
 	var MaxPawnSpeed = TargetSpeed * AnalogInputModifier
-	var bExceedingMaxSpeed = (true if vect.length() >= TargetSpeed else false)
+	var bExceedingMaxSpeed = (true if temp_vec.length() >= TargetSpeed else false)
 	
 	if AnalogInputModifier > 0.0 and not bExceedingMaxSpeed:
 		# Apply change in velocity direction
-		if vect.length_squared() > 0.0:
+		if temp_vec.length_squared() > 0.0:
 			# Change direction faster than only using acceleration, but never increase velocity magnitude.
 			var TimeScale = clamp(DeltaTime * TurnBoost, 0.0, 1.0)
-			vect = vect + (ControlAcceleration * vect.length() - vect) * TimeScale
+			temp_vec = temp_vec + (ControlAcceleration * temp_vec.length() - temp_vec) * TimeScale
 	else:
 		# Dampen velocity magnitude based on deceleration.
-		if vect.length_squared() > 0.0:
-			var OldVelocity = vect
-			var VelSize = max(vect.length() - abs(Deacceleration) * DeltaTime, 0.0)
-			vect = vect.normalized() * VelSize
+		if temp_vec.length_squared() > 0.0:
+			var OldVelocity = temp_vec
+			var VelSize = max(temp_vec.length() - abs(Deacceleration) * DeltaTime, 0.0)
+			temp_vec = temp_vec.normalized() * VelSize
 
 			# Don't allow braking to lower us below max speed if we started above it.
-			if bExceedingMaxSpeed and vect.length_squared() < pow(MaxPawnSpeed, 2):
-				vect = OldVelocity.GetSafeNormal() * MaxPawnSpeed
+			if bExceedingMaxSpeed and temp_vec.length_squared() < pow(MaxPawnSpeed, 2):
+				temp_vec = OldVelocity.normalized() * MaxPawnSpeed
 
 	# Apply acceleration and clamp velocity magnitude.
-	var NewMaxSpeed = (vect.Size() if bExceedingMaxSpeed else TargetSpeed)
-	vect += ControlAcceleration * abs(Acceleration) * DeltaTime
-	return get_clamped_vector3(vect, NewMaxSpeed)
+	var NewMaxSpeed = (temp_vec.length() if bExceedingMaxSpeed else TargetSpeed)
+	temp_vec += ControlAcceleration * abs(Acceleration) * DeltaTime
+	return get_clamped_vector3(temp_vec, NewMaxSpeed)
 		
 
 func velocity_deacceleration(DeltaTime, Deacceleration, vec):
