@@ -8,11 +8,19 @@ var on_floor = false
 var on_wall = false
 var on_ceiling = false
 var current_collision = KinematicCollision
+var target_speed = 1.0
 
+export(float, 0, 90, 1) var MAX_SLOPE_ANGLE = 40
+export(float, 0, 90, 1) var MAX_CEILING_ANGLE = 40
+export(float, 0, 90, 1) var MAX_STEP_ANGLE = 7.0
+
+var cos_slope = 0.707
+var cos_ceil = 0.707
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	pass # Replace with function body.
+	cos_slope = cos(deg2rad(MAX_SLOPE_ANGLE))
+	cos_ceil = cos(deg2rad(180 + MAX_CEILING_ANGLE))
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -39,21 +47,52 @@ func is_on_wall():
 func get_collision():
 	return current_collision
 
-func move_and_slide_custom(
-		var lv, 
-		var floor_direction = Vector3(0,1,0), 
-		var foward_direction = Vector3(-1,0,0), 
-		var physics_delta = get_physics_process_delta_time(), 
-		var max_slides = 4, 
-		var slope_stop_min_velocity = 0.05, 
-		var floor_max_angle = deg2rad(45),
-		var ceiling_max_angle = deg2rad(225),
-		var update_floor = true,
-		var update_wall = true,
-		var update_ceiling = true):
+func apply_velocity_with_prediction(delta, vel, scope = 1.0):
+	var future_col = move_and_collide(vel * scope * delta, true, false, true)
 	
-	var cos_slope = cos(floor_max_angle)
-	var cos_ceil = cos(ceiling_max_angle)
+	if (!future_col):
+		return move_and_slide_kinematic(
+			vel, global_transform.basis.y, -global_transform.basis.z,
+			delta, 8, 0.05, 
+			MAX_SLOPE_ANGLE, MAX_CEILING_ANGLE, 
+			false, true, true
+		)
+	else:
+		if future_col.normal.dot(global_transform.basis.y) >= cos(deg2rad(45.0)):
+			var correction_motion = vel.length()*vel.slide(future_col.normal).normalized()
+			var v_a = vel
+			var v_b = move_and_slide_kinematic(
+				correction_motion, future_col.normal, -global_transform.basis.z,
+				delta, 8, 0.05, 
+				MAX_SLOPE_ANGLE, MAX_CEILING_ANGLE, 
+				false, true, true
+			)
+
+			return v_a.linear_interpolate(v_b, abs(vel.length()) / (target_speed * 0.45))
+		else:
+			return move_and_slide_kinematic(
+				vel, global_transform.basis.y, -global_transform.basis.z,
+				delta, 8, 0.05, 
+				MAX_SLOPE_ANGLE, MAX_CEILING_ANGLE,  
+				false, true, true
+			)
+			
+
+func move_and_slide_kinematic(
+	var lv, 
+	var floor_direction = Vector3(0,1,0), 
+	var foward_direction = Vector3(0,0,-1), 
+	var physics_delta = get_physics_process_delta_time(), 
+	var max_slides = 4, 
+	var slope_stop_min_velocity = 0.05, 
+	var floor_max_angle = deg2rad(45),
+	var ceiling_max_angle = deg2rad(225),
+	var update_floor = true,
+	var update_wall = true,
+	var update_ceiling = true
+):
+	var _cos_slope = cos(deg2rad(floor_max_angle))
+	var _cos_ceil = cos(deg2rad(180 + ceiling_max_angle))
 	var motion = (floor_velocity + lv) * physics_delta
 	floor_velocity = Vector3.ZERO
 
@@ -65,14 +104,14 @@ func move_and_slide_custom(
 		on_wall = false
 
 	while(max_slides):
-		var collision = move_and_collide(motion)
+		var collision = move_and_collide(motion, true, false)
 		current_collision = collision
 		if collision:
-			#print("collision")
+			
 			motion = collision.remainder
 			floor_normal = collision.normal
 
-			if collision.normal.dot(floor_direction) >= cos_slope:
+			if collision.normal.dot(floor_direction) >= _cos_slope:
 				if update_floor:
 					on_floor = true
 
@@ -87,32 +126,28 @@ func move_and_slide_custom(
 					set_global_transform(gt)
 					return (floor_velocity - floor_direction * floor_direction.dot(floor_velocity))
 
-			elif collision.normal.dot(floor_direction) < cos_slope and collision.normal.dot(floor_direction) > cos_ceil and sqrt(lv.length_squared()) > slope_stop_min_velocity:
+			elif collision.normal.dot(floor_direction) < _cos_slope and collision.normal.dot(floor_direction) > _cos_ceil and sqrt(lv.length_squared()) > slope_stop_min_velocity:
 				if update_wall:
 					on_wall = true	
 
 					var d = collision.normal.dot(lv)
-					print(d)
-		
-					if (d < cos_ceil or d > cos_slope):
-						print("cancel")
+					if (d < _cos_ceil or d > _cos_slope):
 						lv = lerp(lv, Vector3.ZERO, 0.1)
 						break
 			
-			elif collision.normal.dot(floor_direction) <= cos_ceil:
+			elif collision.normal.dot(floor_direction) <= _cos_ceil:
 				if update_ceiling:
 					on_ceiling = true
 
 			var n = collision.normal
 			motion = motion.slide(n)
 			lv = lv.slide(n)
-			#move_and_slide(lv, n, false)
 		else:
-			#print("no collision")
 			break
 
 		max_slides -= 1
-
 		if motion.length() == 0:
 			break
+
 	return lv
+

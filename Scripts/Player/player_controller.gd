@@ -1,8 +1,14 @@
 extends "res://Scripts/bitz_kinematic_body.gd"
 
+enum RayCastMode{
+	SINGLE,
+	DOUBLES,
+}
+
 var player_input = preload("player_input_class.gd").new([],[])
 
 const EPSILON = 0.0001
+var normal_get_state = RayCastMode
 var mouse_sens = 0.3
 var camera_anglev = 0
 export(float, -19.62, -0.01, 0.01) var GRAVITY = -9.81
@@ -20,18 +26,20 @@ var pitch_transform: Transform
 var roll_transform: Transform
 var velocity_direction = Vector3()
 
-export(float, 1, 64, 1) var MAX_SPEED = 20
+export(float, 1, 30, 1) var MAX_SPEED = 20
 export(float, 1, 64, 1) var JUMP_SPEED = 18
 export(float, 1, 16, 0.25) var ACCEL = 2.7*2
 export(float, 1, 16, 0.25) var DEACCEL = 5.4*2
 var direction = Vector3()
 var floor_rays = {
+	"Center": Object(),
 	"Front": Object(),
 	"Back": Object(),
 	"Left": Object(),
 	"Right": Object(),
 }
 var floor_normals = {
+	"Center": Vector3(0, 1, 0),
 	"Front": Vector3(0, 1, 0),
 	"Back": Vector3(0, 1, 0),
 	"Left": Vector3(0, 1, 0),
@@ -40,18 +48,21 @@ var floor_normals = {
 var average_normal = Vector3()
 var player_basis = Basis()
 
-export(float, 0, 90, 1) var MAX_SLOPE_ANGLE = 40
-export(float, 0, 90, 1) var MAX_CEILING_ANGLE = 40
-export(float, 0, 90, 1) var MAX_STEP_ANGLE = 7.0
+#export(float, 0, 90, 1) var MAX_SLOPE_ANGLE = 40
+#export(float, 0, 90, 1) var MAX_CEILING_ANGLE = 40
+#export(float, 0, 90, 1) var MAX_STEP_ANGLE = 7.0
 
 
 func _ready():
+	self.target_speed = MAX_SPEED
+	normal_get_state = RayCastMode.DOUBLES
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 
 	for ray in $Rays.get_children():
 		if ray.get_class() == "RayCast":
 			ray.set_cast_to(Vector3(0, -1.5, 0))
 			
+	floor_rays["Center"] = $Rays/RaycastCenter
 	floor_rays["Front"] = $Rays/RaycastFront
 	floor_rays["Back"] = $Rays/RaycastBack
 	floor_rays["Left"] = $Rays/RaycastLeft
@@ -63,7 +74,7 @@ func get_capsule_basis(dir, length = 1, offset = Vector3(0, 0, 0)):
 	
 	
 func get_capsule_bottom():
-	return $CollisionShape.transform.origin + $CollisionShape.get_shape().get_height()
+	return $CollisionShape/VisualMesh/MeshInstance.get_shape().get_height()#$CollisionShape.transform.origin + $CollisionShape.get_shape().get_height() + ($CollisionShape2.get_shape().get_length())
 
 
 func _physics_process(delta):
@@ -121,33 +132,28 @@ func process_movement(delta):
 	
 	movement_vel = apply_input_to_velocity(delta, direction, movement_vel, ACCEL, DEACCEL, 6.0, MAX_SPEED)
 	#VelocityDeacceleration(DeltaTime, Deceleration, 0.0f, AdditionalVelocity_1)
-
+	movement_vel = apply_velocity_with_prediction(delta, movement_vel)
+	"""
 	movement_vel = move_and_slide_custom(
 		movement_vel, average_normal, velocity_direction,
 		delta, 8, 0.05, 
 		deg2rad(MAX_SLOPE_ANGLE), deg2rad(180 + MAX_CEILING_ANGLE), 
-		false, true, true
+		false, true, true,
+		false
 	)
-	gravity_vel = move_and_slide_custom(
+	"""
+	gravity_vel = move_and_slide_kinematic(
 		gravity_vel, average_normal, velocity_direction,
 		delta, 4, 0.05, 
-		deg2rad(MAX_STEP_ANGLE), deg2rad(180 + MAX_STEP_ANGLE), 
+		MAX_STEP_ANGLE, MAX_STEP_ANGLE, 
 		true, false, false
 	)
-	var fs = "%10s - %10s - %10s\n%10s - %10s - %10s"
-	$RichTextLabel.text = fs % ["On_Floor", "On_Wall", "On_Ceil", is_on_floor(), is_on_wall(), is_on_ceiling()]
-	get_node("SpringArm").player_velocity = composite_vel
 	
-
-func accelerate_scalar(delta, scalar, vel, dir, max_speed = 1.0, acc = 0.01, deacc = 0.1):
-	if abs(dir.length()) > 0.01:
-		scalar += (acc if dir.dot(vel) > 0 else deacc)
-	else:
-		scalar = lerp(scalar, 0.0, delta * deacc)
-
-	scalar = clamp(scalar, -max_speed, max_speed)	
-	print(scalar)		
-	return scalar
+	composite_vel = movement_vel + gravity_vel
+	get_node("SpringArm").player_velocity = composite_vel
+	$RichTextLabel.text = "%10s: %10s" % ["FPS", Engine.get_frames_per_second()]
+	$RichTextLabel.text += "\n%10s - %10s - %10s\n%10s - %10s - %10s" % ["On_Floor", "On_Wall", "On_Ceil", is_on_floor(), is_on_wall(), is_on_ceiling()]
+	$RichTextLabel.text += "\n%10s: %10s\n%10s: %10s\n%10s: %10s" % ["Velocity", movement_vel, "Speed", abs(movement_vel.length()), "Target", MAX_SPEED]
 
 
 func handle_gravity(delta):
@@ -160,33 +166,44 @@ func handle_gravity(delta):
 	
 	
 func align_to_floor():
-	# Calculate Pitch
-	if floor_rays.has_all(["Front", "Back"]):
-		# Front-Back Ray
-		update_ray_normal(["Front", "Back"], deg2rad(MAX_SLOPE_ANGLE))
-			
-		var forward_normal = (floor_normals["Front"] + floor_normals["Back"]).normalized()
-		average_normal += forward_normal
-		pitch_transform = get_y_align(global_transform, forward_normal)
-	
-	# Calculate Roll
-	if floor_rays.has_all(["Left", "Right"]):
-		# Left-Right Ray
-		update_ray_normal(["Left", "Right"], deg2rad(MAX_SLOPE_ANGLE))
+
+	if normal_get_state == RayCastMode.SINGLE:
+		if floor_rays.has("Center"):
+			# Center Ray
+			update_ray_normal("Center", deg2rad(MAX_SLOPE_ANGLE))
+			average_normal = floor_normals["Center"]
+			pitch_transform = get_y_align(global_transform, average_normal)
+
+		# Combine and apply transforms	
+		global_transform = global_transform.interpolate_with(pitch_transform, 0.1)
+
+	elif normal_get_state == RayCastMode.DOUBLES:
+		# Calculate Pitch
+		if floor_rays.has_all(["Front", "Back"]):
+			# Front-Back Ray
+			update_raypair_normal(["Front", "Back"], deg2rad(MAX_SLOPE_ANGLE))
+				
+			var forward_normal = (floor_normals["Front"] + floor_normals["Back"]).normalized()
+			average_normal += forward_normal
+			pitch_transform = get_y_align(global_transform, forward_normal)
 		
-		var side_normal = (floor_normals["Left"] + floor_normals["Right"]).normalized()
-		average_normal += side_normal
-		roll_transform = get_y_align(global_transform, side_normal)
+		# Calculate Roll
+		if floor_rays.has_all(["Left", "Right"]):
+			# Left-Right Ray
+			update_raypair_normal(["Left", "Right"], deg2rad(MAX_SLOPE_ANGLE))
+			
+			var side_normal = (floor_normals["Left"] + floor_normals["Right"]).normalized()
+			average_normal += side_normal
+			roll_transform = get_y_align(global_transform, side_normal)
 
-	average_normal = average_normal.normalized()
+		average_normal = average_normal.normalized()
 
-	# Combine and apply transforms	
-	global_transform = global_transform.interpolate_with(pitch_transform, 0.1)
-	global_transform = global_transform.interpolate_with(roll_transform, 0.1)
+		# Combine and apply transforms	
+		global_transform = global_transform.interpolate_with(pitch_transform, 0.1)
+		global_transform = global_transform.interpolate_with(roll_transform, 0.1)
 
 
-func update_ray_normal(ray_pair, max_angle = 40, default_value = Vector3.UP):
-
+func update_raypair_normal(ray_pair, max_angle = 40, default_value = Vector3.UP):
 	var cos_slope = cos(max_angle + EPSILON)
 
 	# Ray 1
@@ -208,6 +225,17 @@ func update_ray_normal(ray_pair, max_angle = 40, default_value = Vector3.UP):
 	else:
 		v2t = default_value
 	floor_normals[ray_pair[1]] = lerp(floor_normals[ray_pair[1]], v2t, 0.5)
+
+func update_ray_normal(ray, max_angle = 40, default_value = Vector3.UP):
+	var cos_slope = cos(max_angle + EPSILON)
+
+	var v1t = default_value
+	if floor_rays[ray]:
+		if floor_rays[ray].is_colliding():
+			v1t = floor_rays[ray].get_collision_normal() if floor_rays[ray].get_collision_normal().dot(global_transform.basis.y) >= cos_slope else default_value
+		else:
+			v1t = default_value
+		floor_normals[ray] = lerp(floor_normals[ray], v1t, 0.5)
 
 
 func get_y_align(base_transform, normal):

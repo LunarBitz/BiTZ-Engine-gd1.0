@@ -15,18 +15,17 @@ subdivide_depth = 3
 radius = 0.5
 
 [node name="KinematicBody" type="KinematicBody"]
+input_ray_pickable = false
 collision_layer = 32
 script = ExtResource( 1 )
-GRAVITY = -19.62
-ACCEL = 4.05
-MAX_SLOPE_ANGLE = 30.0
+MAX_SPEED = 35.0
 
 [node name="HelperVel" type="Spatial" parent="."]
 
 [node name="VisualMesh" type="Spatial" parent="."]
 
 [node name="MeshInstance" type="MeshInstance" parent="VisualMesh"]
-transform = Transform( 1, 0, 0, 0, -1.62921e-07, -1, 0, 1, -1.62921e-07, 0, 0, 0 )
+transform = Transform( 1, 0, 0, 0, -1.62921e-07, -1, 0, 1, -1.62921e-07, 0.00135803, 0.00493619, 0.00477114 )
 mesh = SubResource( 1 )
 material/0 = null
 
@@ -39,6 +38,10 @@ transform = Transform( 1, 0, 0, 0, -1.62921e-07, -1, 0, 1, -1.62921e-07, 0, 0, 0
 shape = SubResource( 3 )
 
 [node name="Rays" type="Spatial" parent="."]
+
+[node name="RaycastCenter" type="RayCast" parent="Rays"]
+enabled = true
+cast_to = Vector3( 0, -1.25, 0 )
 
 [node name="RaycastFront" type="RayCast" parent="Rays"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.5 )
@@ -69,6 +72,7 @@ target_parent_path = NodePath("..")
 
 [node name="Camera" type="Camera" parent="SpringArm"]
 fov = 90.0
+near = 0.01
 far = 8192.0
 
 [node name="RichTextLabel" type="RichTextLabel" parent="."]

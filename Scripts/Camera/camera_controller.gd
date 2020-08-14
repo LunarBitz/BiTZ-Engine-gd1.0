@@ -33,11 +33,11 @@ func _physics_process(delta: float) -> void:
 		rotate_camera(delta)
 
 		# Simulate springarm attachment by getting it's intended camera mount position
-		var camera_socket = Vector3.ZERO#target_parent.global_transform.basis.z * target_parent.spring_length
+		#var camera_socket = Vector3.ZERO#target_parent.global_transform.basis.z * target_parent.spring_length
 
 		# Movement Lag
-		var pos_lag = player_velocity * max_position_lag_offset * delta * delta # Set value of max position lag
-		global_transform.origin = global_transform.origin.linear_interpolate(target_parent.global_transform.origin + camera_socket + pos_lag, 1 / position_lag_speed)
+		#var pos_lag = player_velocity * max_position_lag_offset * delta * delta # Set value of max position lag
+		#global_transform.origin = global_transform.origin.linear_interpolate(target_parent.global_transform.origin + camera_socket + pos_lag, 1 / position_lag_speed)
 	pass
 
 
@@ -58,13 +58,5 @@ func rotate_camera(delta):
 
 	rotation = lag_input_rot
 
-
-func handle_clipping(delta: float):
-	# Cast ray from camera to player
-	# If ray hit
-		# Get clipping distance
-		# Lerp camera offest value to distance if small value
-		## Instant set if big value
-	pass
 
 	

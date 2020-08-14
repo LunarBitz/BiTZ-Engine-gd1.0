@@ -7,11 +7,11 @@
 albedo_texture = ExtResource( 1 )
 uv1_scale = Vector3( 100, 100, 1 )
 
-[sub_resource type="SpatialMaterial" id=3]
+[sub_resource type="SpatialMaterial" id=2]
 albedo_texture = ExtResource( 1 )
 uv1_scale = Vector3( 1000, 100, 1 )
 
-[sub_resource type="SpatialMaterial" id=2]
+[sub_resource type="SpatialMaterial" id=3]
 albedo_texture = ExtResource( 1 )
 uv1_scale = Vector3( 75, 75, 75 )
 
@@ -25,11 +25,12 @@ material = SubResource( 1 )
 [node name="CSGBox13" type="CSGBox" parent="."]
 transform = Transform( 17.2194, 0, 0, 0, 0.108012, 0, 0, 0, 150.622, 0, 0, -166.652 )
 use_collision = true
-material = SubResource( 3 )
+material = SubResource( 2 )
 
 [node name="KinematicBody" parent="." instance=ExtResource( 2 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -8.75115, 1.03897, 8.01058 )
-ACCEL = 5.4
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -8.75115, 1.58981, 8.01058 )
+input_ray_pickable = true
+MAX_SPEED = 60.0
 
 [node name="CSGCylinder" type="CSGCylinder" parent="."]
 transform = Transform( -1.25512e-06, 7.70387, -1.25512e-06, 0, -1.49584e-06, -9.1814, -9.1814, -1.49584e-06, 2.43703e-13, 0, -8.17883, 21.0014 )
@@ -39,7 +40,7 @@ sides = 64
 [node name="CSGBox2" type="CSGBox" parent="."]
 transform = Transform( 1, 0, 0, 0, 27.3152, 0, 0, 0, 13.4428, 3.25596, 1.00459, 0 )
 use_collision = true
-material = SubResource( 2 )
+material = SubResource( 3 )
 
 [node name="CSGBox3" type="CSGBox" parent="."]
 transform = Transform( 1, 0, 0, 0, 0.919108, -3.89583, 0, 0.394006, 9.0879, 1.37081, 2.69911, 4.85298 )
@@ -86,3 +87,12 @@ use_collision = true
 [node name="DirectionalLight" type="DirectionalLight" parent="."]
 transform = Transform( 0.949003, 0.147197, -0.278795, 0, 0.884312, 0.466896, 0.315268, -0.443086, 0.839215, -9.43287, 3.52165, 0 )
 shadow_enabled = true
+
+[node name="CSGBox14" type="CSGBox" parent="."]
+transform = Transform( 15, 0, 0, 0, 15, 0, 0, 0, 15, 18.1743, 15, -67.775 )
+use_collision = true
+
+[node name="CSGCylinder" type="CSGCylinder" parent="CSGBox14"]
+transform = Transform( -4.37114e-08, -1, 0, 0.936796, -4.09487e-08, 0, 0, 0, 0.936796, -0.635521, -0.0538229, 0 )
+operation = 2
+sides = 64
