@@ -26,7 +26,7 @@ var pitch_transform: Transform
 var roll_transform: Transform
 var velocity_direction = Vector3()
 
-export(float, 1, 30, 1) var MAX_SPEED = 20
+export(float, 1, 40, 1) var MAX_SPEED = 20
 export(float, 1, 64, 1) var JUMP_SPEED = 18
 export(float, 1, 16, 0.25) var ACCEL = 2.7*2
 export(float, 1, 16, 0.25) var DEACCEL = 5.4*2
@@ -132,6 +132,7 @@ func process_movement(delta):
 	
 	movement_vel = apply_input_to_velocity(delta, direction, movement_vel, ACCEL, DEACCEL, 6.0, MAX_SPEED)
 	#VelocityDeacceleration(DeltaTime, Deceleration, 0.0f, AdditionalVelocity_1)
+	
 	movement_vel = apply_velocity_with_prediction(delta, movement_vel)
 	"""
 	movement_vel = move_and_slide_custom(
@@ -140,6 +141,13 @@ func process_movement(delta):
 		deg2rad(MAX_SLOPE_ANGLE), deg2rad(180 + MAX_CEILING_ANGLE), 
 		false, true, true,
 		false
+	)
+	
+	movement_vel = move_and_slide_kinematic_with_prediction(
+		movement_vel, average_normal, velocity_direction,
+		8, 0.05, 
+		MAX_SLOPE_ANGLE, MAX_CEILING_ANGLE, 
+		false, true, true
 	)
 	"""
 	gravity_vel = move_and_slide_kinematic(

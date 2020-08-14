@@ -5,11 +5,11 @@
 
 [sub_resource type="SpatialMaterial" id=1]
 albedo_texture = ExtResource( 1 )
-uv1_scale = Vector3( 100, 100, 1 )
+uv1_scale = Vector3( 25, 25, 1 )
 
 [sub_resource type="SpatialMaterial" id=2]
 albedo_texture = ExtResource( 1 )
-uv1_scale = Vector3( 1000, 100, 1 )
+uv1_scale = Vector3( 250, 25, 1 )
 
 [sub_resource type="SpatialMaterial" id=3]
 albedo_texture = ExtResource( 1 )
@@ -18,7 +18,7 @@ uv1_scale = Vector3( 75, 75, 75 )
 [node name="-1" type="Spatial"]
 
 [node name="CSGBox" type="CSGBox" parent="."]
-transform = Transform( 17.2194, 0, 0, 0, 0.108012, 0, 0, 0, 17.2194, 0, 0, 0 )
+transform = Transform( 17.2194, 0, 0, 0, 0.108012, 0, 0, 0, 17.2194, 0.0187359, 0.0180216, 0.0107536 )
 use_collision = true
 material = SubResource( 1 )
 
@@ -28,12 +28,14 @@ use_collision = true
 material = SubResource( 2 )
 
 [node name="KinematicBody" parent="." instance=ExtResource( 2 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -8.75115, 1.58981, 8.01058 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 5.18484, 1.58981, -65.6166 )
 input_ray_pickable = true
-MAX_SPEED = 60.0
+MAX_SLOPE_ANGLE = 41.0
+MAX_CEILING_ANGLE = 41.0
+MAX_STEP_ANGLE = 8.0
 
 [node name="CSGCylinder" type="CSGCylinder" parent="."]
-transform = Transform( -1.25512e-06, 7.70387, -1.25512e-06, 0, -1.49584e-06, -9.1814, -9.1814, -1.49584e-06, 2.43703e-13, 0, -8.17883, 21.0014 )
+transform = Transform( -1.25512e-06, 7.70387, -1.25512e-06, 0, -1.49584e-06, -9.1814, -9.1814, -1.49584e-06, 2.43703e-13, 0.156256, -8.17883, 20.9639 )
 use_collision = true
 sides = 64
 
