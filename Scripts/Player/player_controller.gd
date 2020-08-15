@@ -136,12 +136,11 @@ func process_movement(delta):
 	rotate_mesh_to_velocity(delta)
 	
 	movement_vel = apply_input_to_velocity(delta, direction, movement_vel, ACCEL, DEACCEL, 5.0, MAX_SPEED)
-	#movement_vel = velocity_deacceleration(delta, DEACCEL, movement_vel)
 	
 	movement_vel = move_and_slide_kinematic(
-		movement_vel, average_normal, velocity_direction,
-		delta, 8, 0.05, 
-		deg2rad(MAX_SLOPE_ANGLE), deg2rad(180 + MAX_CEILING_ANGLE), 
+		movement_vel, average_normal,
+		8, 0.05, 
+		MAX_SLOPE_ANGLE, MAX_CEILING_ANGLE, 
 		false, true, true
 	)
 	"""
@@ -149,15 +148,15 @@ func process_movement(delta):
 	
 	
 	movement_vel = move_and_slide_kinematic_with_prediction(
-		movement_vel, average_normal, velocity_direction,
+		movement_vel, average_normal,
 		8, 0.05, 
 		MAX_SLOPE_ANGLE, MAX_CEILING_ANGLE, 
 		false, true, true
 	)
 	"""
 	gravity_vel = move_and_slide_kinematic(
-		gravity_vel, average_normal, velocity_direction,
-		delta, 4, 0.05, 
+		gravity_vel, average_normal,
+		4, 0.05, 
 		MAX_STEP_ANGLE, MAX_STEP_ANGLE, 
 		true, false, false
 	)
@@ -206,9 +205,11 @@ func Reset_Gravity_Acceleration(new_acc = 0.0, reset = true):
 	if reset:
 		gravity_vel = Vector3.ZERO
 
+
 func is_walkable(vec):
 	return true if vec.dot(global_transform.basis.y) >= cos_slope else false
 	
+
 func align_to_floor():
 
 	if normal_get_state == RayCastMode.SINGLE:
@@ -269,6 +270,7 @@ func update_raypair_normal(ray_pair, max_angle = 40, default_value = Vector3.UP)
 	else:
 		v2t = default_value
 	floor_normals[ray_pair[1]] = lerp(floor_normals[ray_pair[1]], v2t, 0.5)
+
 
 func update_ray_normal(ray, max_angle = 40, default_value = Vector3.UP):
 	var cos_slope = cos(max_angle + EPSILON)
@@ -354,9 +356,4 @@ func apply_input_to_velocity(DeltaTime, input_vect, vect, Acceleration, Deaccele
 	return get_clamped_vector3(temp_vec, NewMaxSpeed)
 		
 
-func velocity_deacceleration(DeltaTime, Deacceleration, vec):
-	# Dampen velocity magnitude based on deceleration.
-	if vec.length_squared() > 0.0:
-		var VelSize = max(vec.length() - abs(Deacceleration) * DeltaTime, 0.0);
-		vec = vec.normalized() * VelSize;
-	return vec
+
