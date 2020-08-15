@@ -14,6 +14,7 @@ var camera_anglev = 0
 export(float, -19.62, -0.01, 0.01) var GRAVITY = -9.81
 var gravity_scalar = 0.0
 var speed_scalar = 0.0
+var grv_rst = true
 var smooth_speed_scalar = 0.0
 var target_input_vector = Vector3()
 var raw_input_vector = Vector3()
@@ -26,7 +27,7 @@ var pitch_transform: Transform
 var roll_transform: Transform
 var velocity_direction = Vector3()
 
-export(float, 1, 40, 1) var MAX_SPEED = 20
+export(float, 1, 64, 1) var MAX_SPEED = 20
 export(float, 1, 64, 1) var JUMP_SPEED = 18
 export(float, 1, 16, 0.25) var ACCEL = 2.7*2
 export(float, 1, 16, 0.25) var DEACCEL = 5.4*2
@@ -61,21 +62,25 @@ func _ready():
 	for ray in $Rays.get_children():
 		if ray.get_class() == "RayCast":
 			ray.set_cast_to(Vector3(0, -1.5, 0))
+		
 			
+	floor_rays["Snap"] = $Rays/RaycastSnap
 	floor_rays["Center"] = $Rays/RaycastCenter
 	floor_rays["Front"] = $Rays/RaycastFront
 	floor_rays["Back"] = $Rays/RaycastBack
 	floor_rays["Left"] = $Rays/RaycastLeft
 	floor_rays["Right"] = $Rays/RaycastRight
-
+	floor_rays["Snap"].set_cast_to(Vector3(0, -0.25, 0))
 
 func get_capsule_basis(dir, length = 1, offset = Vector3(0, 0, 0)):
 	return $CollisionShape.transform.origin + ($CollisionShape.get_shape().get_radius() * (dir * length)) + offset
 	
 	
 func get_capsule_bottom():
-	return $CollisionShape/VisualMesh/MeshInstance.get_shape().get_height()#$CollisionShape.transform.origin + $CollisionShape.get_shape().get_height() + ($CollisionShape2.get_shape().get_length())
+	return $CollisionShape.get_shape().get_height()#$CollisionShape.transform.origin + $CollisionShape.get_shape().get_height() + ($CollisionShape2.get_shape().get_length())
 
+func get_capsule_half_height():
+	return $CollisionShape.get_shape().get_height()
 
 func _physics_process(delta):
 	process_input()
@@ -130,8 +135,8 @@ func process_movement(delta):
 	align_to_floor()
 	rotate_mesh_to_velocity(delta)
 	
-	movement_vel = apply_input_to_velocity(delta, direction, movement_vel, ACCEL, DEACCEL, 6.0, MAX_SPEED)
-	#VelocityDeacceleration(DeltaTime, Deceleration, 0.0f, AdditionalVelocity_1)
+	movement_vel = apply_input_to_velocity(delta, direction, movement_vel, ACCEL, DEACCEL, 5.0, MAX_SPEED)
+	#movement_vel = velocity_deacceleration(delta, DEACCEL, movement_vel)
 	
 	movement_vel = apply_velocity_with_prediction(delta, movement_vel)
 	"""
@@ -165,13 +170,48 @@ func process_movement(delta):
 
 
 func handle_gravity(delta):
-	if is_on_floor():
-		gravity_scalar = delta * GRAVITY
+	var override_force
+	var valid_gravity
+
+	if floor_rays["Snap"]:
+		override_force = floor_rays["Snap"].is_colliding()
+		valid_gravity = floor_rays["Snap"].is_colliding()  #&& is_walkable(floor_rays["Snap"].get_collision_normal())
+
+	print("Valid Grav: ", valid_gravity, " On Floor: ", is_on_floor())
+	
+
+	if is_on_floor() and valid_gravity:
+		grv_rst = false
+		gravity_scalar = delta * (GRAVITY * ((abs(movement_vel.length()) / (MAX_SPEED * 1.0)) * 100))
+	elif !is_on_floor() and valid_gravity:
+		grv_rst = false
+		transform.origin = floor_rays["Snap"].get_collision_point() + (get_capsule_half_height() * global_transform.basis.y)
 	else:
-		gravity_scalar += delta * GRAVITY
+		if !grv_rst:
+			if !override_force:
+				gravity_scalar = 0.0
+			grv_rst = true
+		if !override_force and !valid_gravity:
+			var terminal_speed = ((2 * 100 * (abs(GRAVITY) * 10.0)) / (0.33 * 2488.53 * 0.5))
+			gravity_scalar += delta * GRAVITY
+			gravity_scalar = clamp(gravity_scalar, -terminal_speed, terminal_speed)
+
 		
 	gravity_vel = global_transform.basis.y * gravity_scalar
+	print("Grav: ", gravity_scalar)
+
+
+func Reset_Gravity_Acceleration(new_acc = 0.0, reset = true):
+	if reset:
+		grv_rst = false;
+		
+	gravity_scalar = new_acc
 	
+	if reset:
+		gravity_vel = Vector3.ZERO
+
+func is_walkable(vec):
+	return true if vec.dot(global_transform.basis.y) >= cos_slope else false
 	
 func align_to_floor():
 
@@ -299,7 +339,7 @@ func apply_input_to_velocity(DeltaTime, input_vect, vect, Acceleration, Deaccele
 		if temp_vec.length_squared() > 0.0:
 			# Change direction faster than only using acceleration, but never increase velocity magnitude.
 			var TimeScale = clamp(DeltaTime * TurnBoost, 0.0, 1.0)
-			temp_vec = temp_vec + (ControlAcceleration * temp_vec.length() - temp_vec) * TimeScale
+			temp_vec = temp_vec + (ControlAcceleration * temp_vec.length() - temp_vec) * TimeScale * DeltaTime * Deacceleration
 	else:
 		# Dampen velocity magnitude based on deceleration.
 		if temp_vec.length_squared() > 0.0:
@@ -322,3 +362,4 @@ func velocity_deacceleration(DeltaTime, Deacceleration, vec):
 	if vec.length_squared() > 0.0:
 		var VelSize = max(vec.length() - abs(Deacceleration) * DeltaTime, 0.0);
 		vec = vec.normalized() * VelSize;
+	return vec

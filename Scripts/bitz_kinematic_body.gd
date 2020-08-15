@@ -49,7 +49,6 @@ func get_collision():
 
 func apply_velocity_with_prediction(delta, vel, scope = 1.0):
 	var future_col = move_and_collide(vel * scope * delta, true, false, true)
-	
 	if (!future_col):
 		return move_and_slide_kinematic_with_prediction(
 			vel, global_transform.basis.y, -global_transform.basis.z,

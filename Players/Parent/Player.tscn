@@ -18,7 +18,7 @@ radius = 0.5
 input_ray_pickable = false
 collision_layer = 32
 script = ExtResource( 1 )
-MAX_SPEED = 40.0
+MAX_SPEED = 65.0
 
 [node name="HelperVel" type="Spatial" parent="."]
 
@@ -42,6 +42,10 @@ shape = SubResource( 3 )
 [node name="RaycastCenter" type="RayCast" parent="Rays"]
 enabled = true
 cast_to = Vector3( 0, -1.25, 0 )
+
+[node name="RaycastSnap" type="RayCast" parent="Rays"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, 0 )
+enabled = true
 
 [node name="RaycastFront" type="RayCast" parent="Rays"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.5 )
