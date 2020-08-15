@@ -73,8 +73,8 @@ cast_to = Vector3( 0, -1.25, 0 )
 [node name="SpringArm" type="SpringArm" parent="."]
 spring_length = 5.0
 script = ExtResource( 2 )
-mouse_yaw_speed = 0.0
-mouse_pitch_speed = 0.0
+mouse_yaw_speed = 8.0
+mouse_pitch_speed = 8.0
 target_parent_path = NodePath("..")
 
 [node name="Camera" type="Camera" parent="SpringArm"]

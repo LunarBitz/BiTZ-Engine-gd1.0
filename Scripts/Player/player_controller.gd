@@ -167,6 +167,7 @@ func process_movement(delta):
 	$RichTextLabel.text = "%10s: %10s" % ["FPS", Engine.get_frames_per_second()]
 	$RichTextLabel.text += "\n%10s - %10s - %10s\n%10s - %10s - %10s" % ["On_Floor", "On_Wall", "On_Ceil", is_on_floor(), is_on_wall(), is_on_ceiling()]
 	$RichTextLabel.text += "\n%10s: %10s\n%10s: %10s\n%10s: %10s" % ["Velocity", movement_vel, "Speed", abs(movement_vel.length()), "Target", MAX_SPEED]
+	$RichTextLabel.text += "\n%10s: %10s" % ["Up Dir", global_transform.basis.y]
 
 
 func handle_gravity(delta):
@@ -176,9 +177,6 @@ func handle_gravity(delta):
 	if floor_rays["Snap"]:
 		override_force = floor_rays["Snap"].is_colliding()
 		valid_gravity = floor_rays["Snap"].is_colliding()  #&& is_walkable(floor_rays["Snap"].get_collision_normal())
-
-	print("Valid Grav: ", valid_gravity, " On Floor: ", is_on_floor())
-	
 
 	if is_on_floor() and valid_gravity:
 		grv_rst = false
@@ -195,10 +193,8 @@ func handle_gravity(delta):
 			var terminal_speed = ((2 * 100 * (abs(GRAVITY) * 10.0)) / (0.33 * 2488.53 * 0.5))
 			gravity_scalar += delta * GRAVITY
 			gravity_scalar = clamp(gravity_scalar, -terminal_speed, terminal_speed)
-
 		
 	gravity_vel = global_transform.basis.y * gravity_scalar
-	print("Grav: ", gravity_scalar)
 
 
 func Reset_Gravity_Acceleration(new_acc = 0.0, reset = true):
@@ -297,7 +293,8 @@ func get_y_align(base_transform, normal):
 func rotate_mesh_to_velocity(delta):	
 	var arc_tan_2 = atan2(-target_input_vector.x, -target_input_vector.z)
 	var target_angle = (arc_tan_2 - rotation.y + $SpringArm.rotation.y)
-	var up_fix = (deg2rad(-180.0) if global_transform.basis.y.y <= -0.001 else 0.0)
+	var u_f = (deg2rad(-180.0) if global_transform.basis.y.y <= -0.001 else 0.0)
+	var up_fix = u_f if sign(global_transform.basis.y.y) == -1 and abs(global_transform.basis.y.z)>0.0+EPSILON else 0.0
 
 	$HelperVel.rotation.y = target_angle + up_fix
 	velocity_direction = -$HelperVel.transform.basis.z
