@@ -1,8 +1,9 @@
-[gd_scene load_steps=8 format=2]
+[gd_scene load_steps=9 format=2]
 
 [ext_resource path="res://Global Textures/tex_grid_0.png" type="Texture" id=1]
 [ext_resource path="res://Players/Parent/Player.tscn" type="PackedScene" id=2]
 [ext_resource path="res://Levels/-1/Models/loop.tscn" type="PackedScene" id=3]
+[ext_resource path="res://Sky.tscn" type="PackedScene" id=4]
 
 [sub_resource type="SpatialMaterial" id=1]
 albedo_texture = ExtResource( 1 )
@@ -96,12 +97,18 @@ depth = 1.96637
 transform = Transform( 1, 0, 0, 0, 0.937002, 3.45403, 0, -0.349324, 9.26483, -0.446199, 8.54001, 4.85298 )
 use_collision = true
 
-[node name="DirectionalLight" type="DirectionalLight" parent="."]
-transform = Transform( 0.949003, 0.147197, -0.278795, 0, 0.884312, 0.466896, 0.315268, -0.443086, 0.839215, -9.43287, 3.52165, 0 )
-shadow_enabled = true
-
 [node name="loop" parent="." instance=ExtResource( 3 )]
 transform = Transform( -8.74228e-08, 0, -2, 0, 2, 0, 2, 0, -8.74228e-08, 5.04068, 9.09019, -62.5659 )
 
 [node name="loop2" parent="." instance=ExtResource( 3 )]
 transform = Transform( 2, 0, 0, 0, 2, 0, 0, 0, 2, -18.4995, 9.09019, -38.2849 )
+
+[node name="Sky" parent="." instance=ExtResource( 4 )]
+color_sky = Color( 0.156863, 0.782629, 1, 1 )
+hours = 9
+minutes = 3
+seconds = 32
+time_of_day_setup = 0.377459
+clouds_tint = Color( 1, 0.960567, 0.940851, 1 )
+sun_radius = 0.2153
+wind_strength = 0.01

@@ -34,6 +34,10 @@ config/icon="res://icon.png"
 
 settings/fps/force_fps=120
 
+[editor_plugins]
+
+enabled=PoolStringArray( "SIsilicon.vfx.godrays" )
+
 [input]
 
 player_move_forward={
@@ -68,3 +72,6 @@ quality/subsurface_scattering/quality=2
 quality/voxel_cone_tracing/high_quality=true
 quality/filters/msaa=4
 environment/default_environment="res://default_env.tres"
+quality/godrays/sample_number=50
+quality/godrays/use_pcf5=false
+quality/godrays/dither_amount=1.0
