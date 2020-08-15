@@ -1,10 +1,13 @@
-[gd_scene load_steps=6 format=2]
+[gd_scene load_steps=7 format=2]
 
 [ext_resource path="res://Scripts/Player/player_controller.gd" type="Script" id=1]
 [ext_resource path="res://Scripts/Camera/camera_controller.gd" type="Script" id=2]
 
 [sub_resource type="CapsuleMesh" id=1]
 radius = 0.5
+
+[sub_resource type="SpatialMaterial" id=4]
+albedo_color = Color( 0, 1, 0.811765, 1 )
 
 [sub_resource type="PrismMesh" id=2]
 subdivide_width = 3
@@ -18,7 +21,7 @@ radius = 0.5
 input_ray_pickable = false
 collision_layer = 32
 script = ExtResource( 1 )
-MAX_SPEED = 65.0
+MAX_SPEED = 100.0
 
 [node name="HelperVel" type="Spatial" parent="."]
 
@@ -27,7 +30,7 @@ MAX_SPEED = 65.0
 [node name="MeshInstance" type="MeshInstance" parent="VisualMesh"]
 transform = Transform( 1, 0, 0, 0, -1.62921e-07, -1, 0, 1, -1.62921e-07, 0.00135803, 0.00493619, 0.00477114 )
 mesh = SubResource( 1 )
-material/0 = null
+material/0 = SubResource( 4 )
 
 [node name="CSGMesh" type="CSGMesh" parent="VisualMesh"]
 transform = Transform( 0.25, 0, 0, 0, -1.09278e-08, 0.25, 0, -0.25, -1.09278e-08, 0, 0.5, -0.6 )
@@ -70,8 +73,8 @@ cast_to = Vector3( 0, -1.25, 0 )
 [node name="SpringArm" type="SpringArm" parent="."]
 spring_length = 5.0
 script = ExtResource( 2 )
-mouse_yaw_speed = 8.0
-mouse_pitch_speed = 8.0
+mouse_yaw_speed = 0.0
+mouse_pitch_speed = 0.0
 target_parent_path = NodePath("..")
 
 [node name="Camera" type="Camera" parent="SpringArm"]

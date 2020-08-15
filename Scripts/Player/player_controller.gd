@@ -138,15 +138,15 @@ func process_movement(delta):
 	movement_vel = apply_input_to_velocity(delta, direction, movement_vel, ACCEL, DEACCEL, 5.0, MAX_SPEED)
 	#movement_vel = velocity_deacceleration(delta, DEACCEL, movement_vel)
 	
-	movement_vel = apply_velocity_with_prediction(delta, movement_vel)
-	"""
-	movement_vel = move_and_slide_custom(
+	movement_vel = move_and_slide_kinematic(
 		movement_vel, average_normal, velocity_direction,
 		delta, 8, 0.05, 
 		deg2rad(MAX_SLOPE_ANGLE), deg2rad(180 + MAX_CEILING_ANGLE), 
-		false, true, true,
-		false
+		false, true, true
 	)
+	"""
+	movement_vel = apply_velocity_with_prediction(delta, movement_vel)
+	
 	
 	movement_vel = move_and_slide_kinematic_with_prediction(
 		movement_vel, average_normal, velocity_direction,

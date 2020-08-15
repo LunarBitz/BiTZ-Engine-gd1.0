@@ -1,7 +1,8 @@
-[gd_scene load_steps=6 format=2]
+[gd_scene load_steps=7 format=2]
 
 [ext_resource path="res://Global Textures/tex_grid_0.png" type="Texture" id=1]
 [ext_resource path="res://Players/Parent/Player.tscn" type="PackedScene" id=2]
+[ext_resource path="res://Levels/-1/Models/loop.tscn" type="PackedScene" id=3]
 
 [sub_resource type="SpatialMaterial" id=1]
 albedo_texture = ExtResource( 1 )
@@ -90,11 +91,5 @@ use_collision = true
 transform = Transform( 0.949003, 0.147197, -0.278795, 0, 0.884312, 0.466896, 0.315268, -0.443086, 0.839215, -9.43287, 3.52165, 0 )
 shadow_enabled = true
 
-[node name="CSGBox14" type="CSGBox" parent="."]
-transform = Transform( 15, 0, 0, 0, 15, 0, 0, 0, 15, 18.1743, 15, -67.775 )
-use_collision = true
-
-[node name="CSGCylinder" type="CSGCylinder" parent="CSGBox14"]
-transform = Transform( -4.37114e-08, -1, 0, 0.936796, -4.09487e-08, 0, 0, 0, 0.936796, -0.635521, -0.0538229, 0 )
-operation = 2
-sides = 64
+[node name="loop" parent="." instance=ExtResource( 3 )]
+transform = Transform( -8.74228e-08, 0, -2, 0, 2, 0, 2, 0, -8.74228e-08, 5.04068, 9.09019, -62.5659 )
