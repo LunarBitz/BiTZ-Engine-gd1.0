@@ -27,7 +27,7 @@ var pitch_transform: Transform
 var roll_transform: Transform
 var velocity_direction = Vector3()
 
-export(float, 1, 64, 1) var MAX_SPEED = 20
+export(float, 1, 100, 1) var MAX_SPEED = 20
 export(float, 1, 64, 1) var JUMP_SPEED = 18
 export(float, 1, 16, 0.25) var ACCEL = 2.7*2
 export(float, 1, 16, 0.25) var DEACCEL = 5.4*2
@@ -137,6 +137,12 @@ func process_movement(delta):
 	
 	movement_vel = apply_input_to_velocity(delta, direction, movement_vel, ACCEL, DEACCEL, 5.0, MAX_SPEED)
 	
+	movement_vel = apply_velocity_with_prediction(delta, movement_vel)
+	# With the predicted velocity, it's possible to get stuck at max speed even when no input is pressed
+	# This forces deacceleration only when the player is above the max speed
+	if abs(movement_vel.length()) >= MAX_SPEED - (MAX_SPEED / 10) and !raw_input_vector:
+		pass#movement_vel = velocity_deacceleration(delta, DEACCEL, movement_vel)
+	"""
 	movement_vel = move_and_slide_kinematic(
 		movement_vel, average_normal,
 		8, 0.05, 
@@ -144,16 +150,10 @@ func process_movement(delta):
 		false, true, true
 	)
 	"""
-	movement_vel = apply_velocity_with_prediction(delta, movement_vel)
+
 	
 	
-	movement_vel = move_and_slide_kinematic_with_prediction(
-		movement_vel, average_normal,
-		8, 0.05, 
-		MAX_SLOPE_ANGLE, MAX_CEILING_ANGLE, 
-		false, true, true
-	)
-	"""
+	
 	gravity_vel = move_and_slide_kinematic(
 		gravity_vel, average_normal,
 		4, 0.05, 
@@ -162,12 +162,13 @@ func process_movement(delta):
 	)
 	
 	composite_vel = movement_vel + gravity_vel
+	var f_s = "\n|%10s|-|%10s|-|%10s|"
 	get_node("SpringArm").player_velocity = composite_vel
-	$RichTextLabel.text = "%10s: %10s" % ["FPS", Engine.get_frames_per_second()]
-	$RichTextLabel.text += "\n%10s - %10s - %10s\n%10s - %10s - %10s" % ["On_Floor", "On_Wall", "On_Ceil", is_on_floor(), is_on_wall(), is_on_ceiling()]
-	$RichTextLabel.text += "\n%10s: %10s\n%10s: %10s\n%10s: %10s" % ["Velocity", movement_vel, "Speed", abs(movement_vel.length()), "Target", MAX_SPEED]
-	$RichTextLabel.text += "\n%10s: %10s" % ["Up Dir", global_transform.basis.y]
-
+	$RichTextLabel.text = "\n%-10s: %-10s" % ["FPS", Engine.get_frames_per_second()]
+	$RichTextLabel.text += f_s % ["On_Floor", "On_Wall", "On_Ceil"]\
+		+ f_s % [is_on_floor(), is_on_wall(), is_on_ceiling()] + "\n"
+	$RichTextLabel.text += "\n%-10s: %-10s\n%-10s: %-10s\n%-10s: %-10s" % ["Velocity", movement_vel, "Speed", abs(movement_vel.length()), "Target", MAX_SPEED]
+	#$RichTextLabel.text += "\n%-10s: %-10s" % ["Up Dir", global_transform.basis.y]
 
 func handle_gravity(delta):
 	var override_force
@@ -356,4 +357,8 @@ func apply_input_to_velocity(DeltaTime, input_vect, vect, Acceleration, Deaccele
 	return get_clamped_vector3(temp_vec, NewMaxSpeed)
 		
 
-
+func velocity_deacceleration(DeltaTime, Deacceleration, vec):
+	if vec.length_squared() > 0.0:
+		var VelSize = max(vec.length() - abs(Deacceleration) * DeltaTime, 0.0);
+		vec = vec.normalized() * VelSize;
+	return vec

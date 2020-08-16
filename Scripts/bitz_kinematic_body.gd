@@ -62,7 +62,7 @@ func apply_velocity_with_prediction(delta, vel, scope = 1.0):
 		)
 	else:
 		# We do hit something in the future. Handle before hand
-		if future_col.normal.dot(global_transform.basis.y) >= cos(deg2rad(45.0)):
+		if future_col.normal.dot(global_transform.basis.y) >= cos_slope:
 			# Happens to be a valid floor so we compesate to avoid physical slow downs
 
 			# Adjust motion to be parralel to the future collision normal
@@ -99,6 +99,7 @@ func move_and_slide_kinematic(
 	var update_wall = true,
 	var update_ceiling = true
 ):
+	var _target_speed = target_speed
 	var physics_delta = get_physics_process_delta_time()
 	var _cos_slope = cos(deg2rad(floor_max_angle))
 	var _cos_ceil = cos(deg2rad(180 + ceiling_max_angle))
@@ -140,7 +141,7 @@ func move_and_slide_kinematic(
 					var gt = get_global_transform()
 					gt.origin -= collision.travel 
 					set_global_transform(gt)
-					return (floor_velocity - floor_direction * floor_direction.dot(floor_velocity))
+					return get_clamped_vector3((floor_velocity - floor_direction * floor_direction.dot(floor_velocity)), _target_speed)
 
 			elif collision.normal.dot(floor_direction) < _cos_slope and collision.normal.dot(floor_direction) > _cos_ceil and sqrt(lv.length_squared()) > slope_stop_min_velocity:
 				# We're hitting a wall
@@ -180,7 +181,7 @@ func move_and_slide_kinematic(
 
 	# DONE!! ^w^ 
 	# Give the user their new velocity back for feedback looping and future usage
-	return lv
+	return get_clamped_vector3(lv, _target_speed)
 
 
 func move_and_slide_kinematic_with_prediction(
@@ -194,6 +195,7 @@ func move_and_slide_kinematic_with_prediction(
 	var update_wall = true,
 	var update_ceiling = true
 ):
+	var _target_speed = target_speed
 	var physics_delta = get_physics_process_delta_time()
 	var _cos_slope = cos(deg2rad(floor_max_angle))
 	var _cos_ceil = cos(deg2rad(180 + ceiling_max_angle))
@@ -260,7 +262,7 @@ func move_and_slide_kinematic_with_prediction(
 					var gt = get_global_transform()
 					gt.origin -= collision.travel 
 					set_global_transform(gt)
-					return (floor_velocity - floor_direction * floor_direction.dot(floor_velocity))
+					return get_clamped_vector3((floor_velocity - floor_direction * floor_direction.dot(floor_velocity)), _target_speed)
 
 			elif collision.normal.dot(floor_direction) < _cos_slope and collision.normal.dot(floor_direction) > _cos_ceil and sqrt(lv.length_squared()) > slope_stop_min_velocity:
 				# We're hitting a wall
@@ -300,5 +302,25 @@ func move_and_slide_kinematic_with_prediction(
 
 	# DONE!! ^w^ 
 	# Give the user their new velocity back for feedback looping and future usage
-	return lv
+	return get_clamped_vector3(lv, _target_speed)
 
+
+func get_clamped_vector3(vector, maxLength):
+	var sqrmag = vector.length_squared()
+	if sqrmag > maxLength * maxLength:
+		var mag = sqrt(sqrmag)
+
+		# these intermediate variables force the intermediate result to be
+		# of float precision. without this, the intermediate result can be of higher
+		# precision, which changes behavior.
+		var normalized_x = vector.x / mag
+		var normalized_y = vector.y / mag
+		var normalized_z = vector.z / mag
+
+		return Vector3(
+			normalized_x * maxLength,
+			normalized_y * maxLength,
+			normalized_z * maxLength
+		);
+	
+	return vector;

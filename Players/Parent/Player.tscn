@@ -1,27 +1,35 @@
-[gd_scene load_steps=7 format=2]
+[gd_scene load_steps=9 format=2]
 
 [ext_resource path="res://Scripts/Player/player_controller.gd" type="Script" id=1]
 [ext_resource path="res://Scripts/Camera/camera_controller.gd" type="Script" id=2]
+[ext_resource path="res://Fonts/debugFont.tres" type="DynamicFont" id=3]
 
 [sub_resource type="CapsuleMesh" id=1]
 radius = 0.5
 
-[sub_resource type="SpatialMaterial" id=4]
+[sub_resource type="SpatialMaterial" id=2]
 albedo_color = Color( 0, 1, 0.811765, 1 )
+metallic = 0.56
+metallic_specular = 1.0
+roughness = 0.0
 
-[sub_resource type="PrismMesh" id=2]
+[sub_resource type="PrismMesh" id=3]
 subdivide_width = 3
 subdivide_height = 3
 subdivide_depth = 3
 
-[sub_resource type="CapsuleShape" id=3]
+[sub_resource type="CapsuleShape" id=4]
 radius = 0.5
 
+[sub_resource type="StyleBoxFlat" id=5]
+bg_color = Color( 0, 0, 0, 0.392157 )
+border_width_left = 8
+border_color = Color( 0, 0, 0, 0.392157 )
+
 [node name="KinematicBody" type="KinematicBody"]
-input_ray_pickable = false
 collision_layer = 32
 script = ExtResource( 1 )
-MAX_SPEED = 100.0
+MAX_SPEED = 50.0
 
 [node name="HelperVel" type="Spatial" parent="."]
 
@@ -30,15 +38,15 @@ MAX_SPEED = 100.0
 [node name="MeshInstance" type="MeshInstance" parent="VisualMesh"]
 transform = Transform( 1, 0, 0, 0, -1.62921e-07, -1, 0, 1, -1.62921e-07, 0.00135803, 0.00493619, 0.00477114 )
 mesh = SubResource( 1 )
-material/0 = SubResource( 4 )
+material/0 = SubResource( 2 )
 
 [node name="CSGMesh" type="CSGMesh" parent="VisualMesh"]
 transform = Transform( 0.25, 0, 0, 0, -1.09278e-08, 0.25, 0, -0.25, -1.09278e-08, 0, 0.5, -0.6 )
-mesh = SubResource( 2 )
+mesh = SubResource( 3 )
 
 [node name="CollisionShape" type="CollisionShape" parent="."]
 transform = Transform( 1, 0, 0, 0, -1.62921e-07, -1, 0, 1, -1.62921e-07, 0, 0, 0 )
-shape = SubResource( 3 )
+shape = SubResource( 4 )
 
 [node name="Rays" type="Spatial" parent="."]
 
@@ -78,15 +86,19 @@ mouse_pitch_speed = 8.0
 target_parent_path = NodePath("..")
 
 [node name="Camera" type="Camera" parent="SpringArm"]
+current = true
 fov = 90.0
 near = 0.01
 far = 8192.0
 
 [node name="RichTextLabel" type="RichTextLabel" parent="."]
-margin_left = 8.73071
-margin_top = 9.52441
-margin_right = 411.731
-margin_bottom = 253.524
+margin_left = 9.0
+margin_top = 10.0
+margin_right = 388.0
+margin_bottom = 178.0
+custom_styles/normal = SubResource( 5 )
+custom_fonts/mono_font = ExtResource( 3 )
+custom_fonts/normal_font = ExtResource( 3 )
 custom_colors/default_color = Color( 1, 0, 0, 1 )
 text = "Testf"
 __meta__ = {
