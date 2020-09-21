@@ -4,4 +4,8 @@
 
 [resource]
 albedo_texture = ExtResource( 1 )
+ao_enabled = true
+ao_light_affect = 0.0
+ao_on_uv2 = false
+ao_texture_channel = 0
 uv1_scale = Vector3( 75, 75, 75 )

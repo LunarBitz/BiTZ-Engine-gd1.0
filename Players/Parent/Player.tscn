@@ -86,10 +86,11 @@ mouse_pitch_speed = 8.0
 target_parent_path = NodePath("..")
 
 [node name="Camera" type="Camera" parent="SpringArm"]
+doppler_tracking = 1
 current = true
 fov = 90.0
 near = 0.01
-far = 8192.0
+far = 150.0
 
 [node name="RichTextLabel" type="RichTextLabel" parent="."]
 margin_left = 9.0

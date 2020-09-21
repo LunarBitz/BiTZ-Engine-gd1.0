@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=2]
+[gd_scene load_steps=8 format=2]
 
 [ext_resource path="res://Global Textures/tex_grid_0.png" type="Texture" id=1]
 [ext_resource path="res://Players/Parent/Player.tscn" type="PackedScene" id=2]
@@ -9,7 +9,13 @@
 
 [sub_resource type="SpatialMaterial" id=2]
 albedo_texture = ExtResource( 1 )
+ao_enabled = true
+ao_light_affect = 0.0
+ao_on_uv2 = false
+ao_texture_channel = 0
 uv1_scale = Vector3( 250, 250, 75 )
+
+[sub_resource type="CubeMesh" id=3]
 
 [node name="Spatial" type="Spatial"]
 
@@ -23,21 +29,22 @@ material = SubResource( 2 )
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.787241, 2.91548, 1.78043 )
 
 [node name="Sky" parent="." instance=ExtResource( 4 )]
-clouds_resolution = 1024
-SCATERRING = false
-multiScatterPhase = 0.0
-clouds_coverage = 0.5
-clouds_size = 2.0
-clouds_softness = 1.0
-moon_light = Color( 0.6, 0.6, 0.8, 1 )
-sunset_light = Color( 1, 0.7, 0.55, 1 )
+multiScatterPhase = 2.0
+hours = 12
+seconds = 42
+time_of_day_setup = 0.501182
+clouds_coverage = 0.3866
+clouds_size = 3.7526
+clouds_height = 0.8247
 sunset_offset = -0.1
-sunset_range = 0.2
-day_light = Color( 1, 1, 1, 1 )
-moon_tint = Color( 1, 0.7, 0.35, 1 )
-clouds_tint = Color( 1, 1, 1, 1 )
-wind_dir = Vector2( 1, 0 )
-wind_strength = 0.1
+sunset_range = 0.176289
+sun_radius = 0.0915
+wind_strength = 0.0125
 
 [node name="loop" parent="." instance=ExtResource( 3 )]
 transform = Transform( -1.71349e-08, 0, -2, 0, 2, 0, 0.392, 0, -8.74228e-08, -1.04489, 10.025, 1.97064 )
+
+[node name="MeshInstance" type="MeshInstance" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.67286, 16.0652 )
+mesh = SubResource( 3 )
+material/0 = null

@@ -167,7 +167,7 @@ func process_movement(delta):
 	$RichTextLabel.text = "\n%-10s: %-10s" % ["FPS", Engine.get_frames_per_second()]
 	$RichTextLabel.text += f_s % ["On_Floor", "On_Wall", "On_Ceil"]\
 		+ f_s % [is_on_floor(), is_on_wall(), is_on_ceiling()] + "\n"
-	$RichTextLabel.text += "\n%-10s: %-10s\n%-10s: %-10s\n%-10s: %-10s" % ["Velocity", movement_vel, "Speed", abs(movement_vel.length()), "Target", MAX_SPEED]
+	$RichTextLabel.text += "\n%-10s: %-10s\n%-10s: %-4.2f\n%-10s: %-10s" % ["Velocity", movement_vel, "Speed", abs(movement_vel.length()), "Target", MAX_SPEED]
 	#$RichTextLabel.text += "\n%-10s: %-10s" % ["Up Dir", global_transform.basis.y]
 
 func handle_gravity(delta):

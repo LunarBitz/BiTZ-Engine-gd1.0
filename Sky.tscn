@@ -365,26 +365,43 @@ panorama = SubResource( 12 )
 [sub_resource type="Environment" id=6]
 background_mode = 2
 background_sky = SubResource( 5 )
-background_energy = 0.75
-ambient_light_color = Color( 1, 0.960567, 0.940851, 1 )
-ambient_light_energy = 0.630631
+background_energy = 0.9
+ambient_light_color = Color( 1, 1, 1, 1 )
+ambient_light_energy = 0.8067
 ambient_light_sky_contribution = 0.5
-fog_color = Color( 1, 0.960567, 0.940851, 1 )
+fog_color = Color( 1, 1, 1, 1 )
 tonemap_mode = 3
+tonemap_exposure = 1.05
+tonemap_white = 3.0
+auto_exposure_enabled = true
 ss_reflections_enabled = true
+ssao_enabled = true
+ssao_light_affect = 0.5
+ssao_ao_channel_affect = 0.21
+ssao_color = Color( 0.0745098, 0.0745098, 0.0745098, 1 )
+ssao_quality = 2
+ssao_edge_sharpness = 0.0
+dof_blur_far_distance = 100.0
+dof_blur_far_transition = 50.0
+dof_blur_far_amount = 0.2
+dof_blur_far_quality = 2
+dof_blur_near_distance = 4.0
+glow_enabled = true
+glow_bloom = 0.05
+glow_bicubic_upscale = true
 adjustment_enabled = true
-adjustment_saturation = 0.75
+adjustment_saturation = 0.8067
 
 [sub_resource type="ShaderMaterial" id=7]
 shader = ExtResource( 5 )
-shader_param/WIND = Vector3( 0.01, 0, 0 )
-shader_param/SUN_POS = Vector3( 0, -0.273711, 0.961812 )
-shader_param/SIZE = 2.0
+shader_param/WIND = Vector3( 0.0125, 0, 0 )
+shader_param/SUN_POS = Vector3( 0, -0.869715, 0.493555 )
+shader_param/SIZE = 3.7526
 shader_param/SOFTNESS = 1.0
-shader_param/COVERAGE = 0.55
-shader_param/HEIGHT = 0.35
-shader_param/THICKNESS = 15.0
-shader_param/ABSORPTION = 1.25
+shader_param/COVERAGE = 0.62938
+shader_param/HEIGHT = 0.8247
+shader_param/THICKNESS = 13.866
+shader_param/ABSORPTION = 1.1366
 shader_param/STEPS = 100
 shader_param/Noise = ExtResource( 1 )
 
@@ -458,7 +475,7 @@ environment = SubResource( 6 )
 
 [node name="Sun_Moon" type="DirectionalLight" parent="."]
 transform = Transform( -1, 8.45501e-08, -2.22271e-08, 0, 0.254251, 0.967133, 8.74228e-08, 0.96714, -0.254249, 0, 0.967138, -0.25425 )
-light_energy = 0.0
+light_energy = 0.75
 shadow_enabled = true
 shadow_color = Color( 0.3, 0.3, 0.3, 1 )
 directional_shadow_depth_range = 1

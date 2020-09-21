@@ -68,10 +68,12 @@ player_move_right={
 
 [rendering]
 
+quality/shadow_atlas/size=8192
+quality/shadows/filter_mode=2
 quality/subsurface_scattering/quality=2
 quality/voxel_cone_tracing/high_quality=true
 quality/filters/msaa=4
 environment/default_environment="res://default_env.tres"
 quality/godrays/sample_number=50
-quality/godrays/use_pcf5=false
+quality/godrays/use_pcf5=true
 quality/godrays/dither_amount=1.0
