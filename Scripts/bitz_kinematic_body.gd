@@ -305,6 +305,20 @@ func move_and_slide_kinematic_with_prediction(
 	return get_clamped_vector3(lv, _target_speed)
 
 
+func step_up_stair(var lv = Vector3.ZERO, var up_direction = Vector3(0,1,0), var step_max_angle = 5):
+	var physics_delta = get_physics_process_delta_time()
+	var _cos_step = cos(deg2rad(step_max_angle))
+	var motion = lv * physics_delta
+
+	var future_collision = move_and_collide(motion, true, false, true) # Perform test collision first for prediction
+
+	if future_collision:
+		if future_collision.normal.dot(up_direction) >= _cos_step:
+			var step_distance = 0
+			#print(future_collision.normal)
+	return motion
+
+
 func get_clamped_vector3(vector, maxLength):
 	var sqrmag = vector.length_squared()
 	if sqrmag > maxLength * maxLength:
@@ -324,3 +338,12 @@ func get_clamped_vector3(vector, maxLength):
 		);
 	
 	return vector;
+
+
+func linecast(var start, var direction, var line_length = 1.0, var ignore_self = true):
+	var ignoredNodes = []
+	if ignore_self:
+		ignoredNodes.append(self)
+		
+	return get_world().direct_space_state.intersect_ray(start, start + (direction * line_length), ignoredNodes)
+

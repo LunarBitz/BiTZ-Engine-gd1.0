@@ -129,6 +129,8 @@ func process_input():
 	# ----------------------------------
 	get_node("SpringArm").player_input = player_input
 
+	linecast(global_transform.origin, target_input_vector, 10)
+
 
 func process_movement(delta):
 	handle_gravity(delta)
@@ -160,6 +162,9 @@ func process_movement(delta):
 		MAX_STEP_ANGLE, MAX_STEP_ANGLE, 
 		true, false, false
 	)
+		#movement_vel
+		#-global_transform.basis.z
+	var vvv = step_up_stair(movement_vel, global_transform.basis.y, 5)
 	
 	composite_vel = movement_vel + gravity_vel
 	var f_s = "\n|%10s|-|%10s|-|%10s|"
