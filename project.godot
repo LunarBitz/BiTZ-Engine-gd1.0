@@ -30,6 +30,10 @@ config/name="BiTZ Engine"
 run/main_scene="res://Levels/-1/level_1_neg.tscn"
 config/icon="res://icon.png"
 
+[autoload]
+
+DrawLine3d="*res://Scripts/Global/DrawLine3D.gd"
+
 [debug]
 
 settings/fps/force_fps=120

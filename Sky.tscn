@@ -357,17 +357,17 @@ colors = PoolColorArray( 0.968627, 0.247059, 0.0784314, 1, 0.239216, 0.635294, 0
 [sub_resource type="GradientTexture" id=3]
 gradient = SubResource( 2 )
 
-[sub_resource type="ViewportTexture" id=12]
+[sub_resource type="ViewportTexture" id=4]
 
 [sub_resource type="PanoramaSky" id=5]
-panorama = SubResource( 12 )
+panorama = SubResource( 4 )
 
 [sub_resource type="Environment" id=6]
 background_mode = 2
 background_sky = SubResource( 5 )
 background_energy = 0.9
 ambient_light_color = Color( 1, 1, 1, 1 )
-ambient_light_energy = 0.8067
+ambient_light_energy = 0.75
 ambient_light_sky_contribution = 0.5
 fog_color = Color( 1, 1, 1, 1 )
 tonemap_mode = 3
@@ -390,18 +390,18 @@ glow_enabled = true
 glow_bloom = 0.05
 glow_bicubic_upscale = true
 adjustment_enabled = true
-adjustment_saturation = 0.8067
+adjustment_saturation = 0.75
 
 [sub_resource type="ShaderMaterial" id=7]
 shader = ExtResource( 5 )
-shader_param/WIND = Vector3( 0.0125, 0, 0 )
-shader_param/SUN_POS = Vector3( 0, -0.869715, 0.493555 )
+shader_param/WIND = Vector3( 0.1, 0, 0 )
+shader_param/SUN_POS = Vector3( 0, -0.967138, 0.25425 )
 shader_param/SIZE = 3.7526
 shader_param/SOFTNESS = 1.0
-shader_param/COVERAGE = 0.62938
-shader_param/HEIGHT = 0.8247
-shader_param/THICKNESS = 13.866
-shader_param/ABSORPTION = 1.1366
+shader_param/COVERAGE = 0.55
+shader_param/HEIGHT = 0.35
+shader_param/THICKNESS = 15.0
+shader_param/ABSORPTION = 1.25
 shader_param/STEPS = 100
 shader_param/Noise = ExtResource( 1 )
 
@@ -449,25 +449,40 @@ size = Vector2( 1024, 1024 )
 
 [node name="Sky" type="Spatial"]
 script = SubResource( 1 )
+clouds_resolution = 1024
 sky_resolution = 1024
 sky_gradient_texture = SubResource( 3 )
+SCATERRING = false
 color_sky = Color( 0.156863, 0.392157, 1, 1 )
 sky_tone = 3.5
 sky_density = 0.5
 sky_rayleig_coeff = 1.0
 sky_mie_coeff = 0.5
+multiScatterPhase = 0.0
 anisotropicIntensity = 1.5
 hours = 13
 minutes = 1
 seconds = 5
 time_of_day_setup = 0.542419
+clouds_coverage = 0.5
+clouds_size = 2.0
+clouds_softness = 1.0
 clouds_dens = 0.1215
 clouds_height = 0.35
 clouds_quality = 100
+moon_light = Color( 0.6, 0.6, 0.8, 1 )
+sunset_light = Color( 1, 0.7, 0.55, 1 )
+sunset_offset = -0.1
+sunset_range = 0.2
+day_light = Color( 1, 1, 1, 1 )
+moon_tint = Color( 1, 0.7, 0.35, 1 )
+clouds_tint = Color( 1, 1, 1, 1 )
 sun_radius = 0.04
 moon_radius = 0.05
 moon_phase = -1.0
 night_level_light = 0.1
+wind_dir = Vector2( 1, 0 )
+wind_strength = 0.1
 lighting_pos = Vector3( 2, 2, 2 )
 
 [node name="Env" type="WorldEnvironment" parent="."]

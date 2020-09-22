@@ -34,7 +34,6 @@ time_of_day_setup = 0.501182
 clouds_coverage = 0.3866
 clouds_size = 3.7526
 clouds_height = 0.8247
-sunset_offset = -0.1
 sunset_range = 0.176289
 sun_radius = 0.0915
 wind_strength = 0.0125

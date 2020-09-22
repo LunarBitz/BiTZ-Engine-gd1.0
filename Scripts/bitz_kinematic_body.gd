@@ -1,6 +1,7 @@
 extends KinematicBody
 class_name BitzKinematicBody
 
+var LineDrawer = preload("res://Scripts/Global/DrawLine3D.gd").new() #In 'global' scope  
 
 var floor_velocity = Vector3()
 var floor_normal = Vector3()
@@ -20,6 +21,7 @@ var cos_ceil = 0.707
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
+	add_child(LineDrawer) #At some point before calling the desired draw function(s) e.g. in '_ready()'
 	cos_slope = cos(deg2rad(MAX_SLOPE_ANGLE))
 	cos_ceil = cos(deg2rad(180 + MAX_CEILING_ANGLE))
 
@@ -310,11 +312,15 @@ func step_up_stair(var lv = Vector3.ZERO, var up_direction = Vector3(0,1,0), var
 	var _cos_step = cos(deg2rad(step_max_angle))
 	var motion = lv * physics_delta
 
+	#linecast(global_transform.origin, -global_transform.basis.y, 1, true, true)
+	radial_multicast(global_transform.origin, -global_transform.basis.y, 8, 1, 1, true, true)
+
 	var future_collision = move_and_collide(motion, true, false, true) # Perform test collision first for prediction
 
 	if future_collision:
 		if future_collision.normal.dot(up_direction) >= _cos_step:
-			var step_distance = 0
+			pass
+			#var step_distance = 0
 			#print(future_collision.normal)
 	return motion
 
@@ -340,10 +346,26 @@ func get_clamped_vector3(vector, maxLength):
 	return vector;
 
 
-func linecast(var start, var direction, var line_length = 1.0, var ignore_self = true):
+func linecast(var start, var direction, var line_length = 1.0, var ignore_self = true, var debug_cast = false):
+	var _p1 = start
+	var _p2 = start + (direction * line_length)
 	var ignoredNodes = []
+
 	if ignore_self:
 		ignoredNodes.append(self)
-		
-	return get_world().direct_space_state.intersect_ray(start, start + (direction * line_length), ignoredNodes)
+	if debug_cast:
+		LineDrawer.DrawLine(_p1, _p2, Color.darkviolet, 0.0, 1)
+
+	return get_world().direct_space_state.intersect_ray(_p1, _p2, ignoredNodes)
+
+
+func radial_multicast(var center, var direction, var count = 8, var radius = 1.0, var line_length = 1.0, var ignore_self = true, var debug_cast = false):
+	var deltaTheta = (2*PI) / count
+	for n in count:
+		var xx = self.global_transform.basis.x * (cos(deltaTheta * n) * radius)
+		var yy = -self.global_transform.basis.z * (sin(deltaTheta * n) * radius)
+
+		linecast(center + xx + yy, direction, line_length, ignore_self, debug_cast)
+
+
 
