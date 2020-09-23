@@ -63,7 +63,6 @@ func _ready():
 		if ray.get_class() == "RayCast":
 			ray.set_cast_to(Vector3(0, -1.5, 0))
 		
-			
 	floor_rays["Snap"] = $Rays/RaycastSnap
 	floor_rays["Center"] = $Rays/RaycastCenter
 	floor_rays["Front"] = $Rays/RaycastFront
@@ -71,16 +70,6 @@ func _ready():
 	floor_rays["Left"] = $Rays/RaycastLeft
 	floor_rays["Right"] = $Rays/RaycastRight
 	floor_rays["Snap"].set_cast_to(Vector3(0, -0.25, 0))
-
-func get_capsule_basis(dir, length = 1, offset = Vector3(0, 0, 0)):
-	return $CollisionShape.transform.origin + ($CollisionShape.get_shape().get_radius() * (dir * length)) + offset
-	
-	
-func get_capsule_bottom():
-	return $CollisionShape.get_shape().get_height()#$CollisionShape.transform.origin + $CollisionShape.get_shape().get_height() + ($CollisionShape2.get_shape().get_length())
-
-func get_capsule_half_height():
-	return $CollisionShape.get_shape().get_height()
 
 func _physics_process(delta):
 	process_input()
@@ -135,24 +124,13 @@ func process_movement(delta):
 	align_to_floor()
 	rotate_mesh_to_velocity(delta)
 	
-	movement_vel = apply_input_to_velocity(delta, direction, movement_vel, ACCEL, DEACCEL, 5.0, MAX_SPEED)
+	movement_vel = BitzLibrary.apply_input_to_velocity(delta, direction, movement_vel, ACCEL, DEACCEL, 5.0, MAX_SPEED)
 	
 	movement_vel = apply_velocity_with_prediction(delta, movement_vel)
 	# With the predicted velocity, it's possible to get stuck at max speed even when no input is pressed
 	# This forces deacceleration only when the player is above the max speed
 	if abs(movement_vel.length()) >= MAX_SPEED - (MAX_SPEED / 10) and !raw_input_vector:
-		pass#movement_vel = velocity_deacceleration(delta, DEACCEL, movement_vel)
-	"""
-	movement_vel = move_and_slide_kinematic(
-		movement_vel, average_normal,
-		8, 0.05, 
-		MAX_SLOPE_ANGLE, MAX_CEILING_ANGLE, 
-		false, true, true
-	)
-	"""
-
-	
-	
+		movement_vel = BitzLibrary.velocity_deacceleration(delta, DEACCEL, movement_vel)
 	
 	gravity_vel = move_and_slide_kinematic(
 		gravity_vel, average_normal,
@@ -188,7 +166,7 @@ func handle_gravity(delta):
 		gravity_scalar = delta * (GRAVITY * ((abs(movement_vel.length()) / (MAX_SPEED * 1.0)) * 100))
 	elif !is_on_floor() and valid_gravity:
 		grv_rst = false
-		transform.origin = floor_rays["Snap"].get_collision_point() + (get_capsule_half_height() * global_transform.basis.y)
+		transform.origin = floor_rays["Snap"].get_collision_point() + (BitzLibrary.get_cshape_half_height($CollisionShape) * global_transform.basis.y)
 	else:
 		if !grv_rst:
 			if !override_force:
@@ -310,60 +288,3 @@ func rotate_mesh_to_velocity(delta):
 	if movement_vel.length_squared() >= delta:
 		$VisualMesh.rotation.y = lerp_angle($VisualMesh.rotation.y, target_angle + up_fix, delta * 8.0)
 
-
-func get_clamped_vector3(vector, maxLength):
-	var sqrmag = vector.length_squared()
-	if sqrmag > maxLength * maxLength:
-		var mag = sqrt(sqrmag)
-
-		# these intermediate variables force the intermediate result to be
-		# of float precision. without this, the intermediate result can be of higher
-		# precision, which changes behavior.
-		var normalized_x = vector.x / mag
-		var normalized_y = vector.y / mag
-		var normalized_z = vector.z / mag
-
-		return Vector3(
-			normalized_x * maxLength,
-			normalized_y * maxLength,
-			normalized_z * maxLength
-		);
-	
-	return vector;
-
-
-func apply_input_to_velocity(DeltaTime, input_vect, vect, Acceleration, Deacceleration, TurnBoost, TargetSpeed):
-	var temp_vec = vect
-	var ControlAcceleration = get_clamped_vector3(input_vect, 1.0)
-	var AnalogInputModifier = (ControlAcceleration.length() if ControlAcceleration.length_squared() > 0.0 else 0.0)
-	var MaxPawnSpeed = TargetSpeed * AnalogInputModifier
-	var bExceedingMaxSpeed = (true if temp_vec.length() >= TargetSpeed else false)
-	
-	if AnalogInputModifier > 0.0 and not bExceedingMaxSpeed:
-		# Apply change in velocity direction
-		if temp_vec.length_squared() > 0.0:
-			# Change direction faster than only using acceleration, but never increase velocity magnitude.
-			var TimeScale = clamp(DeltaTime * TurnBoost, 0.0, 1.0)
-			temp_vec = temp_vec + (ControlAcceleration * temp_vec.length() - temp_vec) * TimeScale * DeltaTime * Deacceleration
-	else:
-		# Dampen velocity magnitude based on deceleration.
-		if temp_vec.length_squared() > 0.0:
-			var OldVelocity = temp_vec
-			var VelSize = max(temp_vec.length() - abs(Deacceleration) * DeltaTime, 0.0)
-			temp_vec = temp_vec.normalized() * VelSize
-
-			# Don't allow braking to lower us below max speed if we started above it.
-			if bExceedingMaxSpeed and temp_vec.length_squared() < pow(MaxPawnSpeed, 2):
-				temp_vec = OldVelocity.normalized() * MaxPawnSpeed
-
-	# Apply acceleration and clamp velocity magnitude.
-	var NewMaxSpeed = (temp_vec.length() if bExceedingMaxSpeed else TargetSpeed)
-	temp_vec += ControlAcceleration * abs(Acceleration) * DeltaTime
-	return get_clamped_vector3(temp_vec, NewMaxSpeed)
-		
-
-func velocity_deacceleration(DeltaTime, Deacceleration, vec):
-	if vec.length_squared() > 0.0:
-		var VelSize = max(vec.length() - abs(Deacceleration) * DeltaTime, 0.0);
-		vec = vec.normalized() * VelSize;
-	return vec

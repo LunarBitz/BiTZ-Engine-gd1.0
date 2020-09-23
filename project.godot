@@ -33,6 +33,7 @@ config/icon="res://icon.png"
 [autoload]
 
 DrawLine3d="*res://Scripts/Global/DrawLine3D.gd"
+BitzLibrary="*res://Scripts/Global/BitzLibrary.gd"
 
 [debug]
 
