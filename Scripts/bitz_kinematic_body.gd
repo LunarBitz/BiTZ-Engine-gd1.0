@@ -54,7 +54,7 @@ func apply_velocity_with_prediction(delta, vel, scope = 1.0):
 
 	if !future_col:
 		# We didn't hit anything, just move like normal
-		return move_and_slide_kinematic_with_prediction(
+		return move_and_slide_kinematic_with_prediction_two(
 			vel, global_transform.basis.y,
 			8, 0.05, 
 			MAX_SLOPE_ANGLE, MAX_CEILING_ANGLE, 
@@ -68,7 +68,7 @@ func apply_velocity_with_prediction(delta, vel, scope = 1.0):
 			# Adjust motion to be parralel to the future collision normal
 			var correction_motion = vel.length()*vel.slide(future_col.normal).normalized()
 			var v_a = vel
-			var v_b = move_and_slide_kinematic_with_prediction(
+			var v_b = move_and_slide_kinematic_with_prediction_two(
 				correction_motion, future_col.normal,
 				8, 0.05, 
 				MAX_SLOPE_ANGLE, MAX_CEILING_ANGLE, 
@@ -80,7 +80,7 @@ func apply_velocity_with_prediction(delta, vel, scope = 1.0):
 			return v_a.linear_interpolate(v_b, abs(vel.length()) / (target_speed * .5))
 		else:
 			# Wasn't a valid floor. Don't compesate and move normally
-			return move_and_slide_kinematic_with_prediction(
+			return move_and_slide_kinematic_with_prediction_two(
 				vel, global_transform.basis.y,
 				8, 0.05, 
 				MAX_SLOPE_ANGLE, MAX_CEILING_ANGLE,  
@@ -332,40 +332,15 @@ func move_and_slide_kinematic_with_prediction_two(
 		on_wall = false
 
 	# Loop collision checking with max slide amount for continous collision
-	while max_slides:
-		var future_collision = move_and_collide(motion, true, false, true) # Perform test collision first for prediction
-		var invalid_floor = false
+	while(max_slides):
 
-		# Second loop of collision for predictions only
-		while !invalid_floor and max_slides:
-			if future_collision:
-				if future_collision.normal.dot(floor_direction) >= _cos_slope and max_slides:
-					# We have made contact with a valid floor in the future given the floor_max_angle provided
-					var v_a = (floor_velocity + lv)
-					var v_b = v_a.length() * v_a.slide(future_collision.normal).normalized()
-
-					# Interpolate between the current velocity and the future velocity as we increase in speed
-					motion = v_a.linear_interpolate(v_b, abs(v_a.length()) / (target_speed * .5)) * physics_delta
-
-					# Keep making a future collision checks with the newly calculated motion instead until we don't hit a valid floor
-					future_collision = move_and_collide(motion, true, false, true)
-
-					# Decrement max slides by 1 so that we don't get stuck in the future
-					max_slides -= 1
-				else:
-					# We didn't hit a valid floor in the future. Could be a wall or ceiling but we don't care here. Just set the flag to exit the loop
-					invalid_floor = true
-			else:
-				# We didn't hit anything in the future. Set the flag to exit the loop
-				invalid_floor = true
-			
-		# We alreay did the future check collision. Actually move with the newly calculated motion now
+		# Idmeddiately move our player
 		var collision = move_and_collide(motion, true, false)
+		current_collision = collision
 
 		if collision:
 			# Update for any possible future collisions and for value retrievals
-			current_collision = collision
-			motion = collision.remainder
+			motion = collision.remainder.project(collision.normal)
 			floor_normal = collision.normal
 
 			if collision.normal.dot(floor_direction) >= _cos_slope:
@@ -405,11 +380,11 @@ func move_and_slide_kinematic_with_prediction_two(
 				if update_ceiling:
 					on_ceiling = true
 
-
-			# Update motion for the next set of collisions
+			# Update motion for the next set of collisions		
 			var n = collision.normal
 			motion = motion.slide(n)
 			lv = lv.slide(n)
+
 		else:
 			# We had absolutely no collisions occur, save resources by breaking loop
 			break
@@ -426,13 +401,16 @@ func move_and_slide_kinematic_with_prediction_two(
 	return BitzLibrary.get_clamped_vector3(lv, _target_speed)
 
 
-func step_up_stair(var lv = Vector3.ZERO, var up_direction = Vector3(0,1,0), var step_max_angle = 5):
+func step_up_stair(var lv = Vector3.ZERO, var forward_direction = Vector3(0,0,-1), var up_direction = Vector3(0,1,0), var step_max_angle = 5):
 	var physics_delta = get_physics_process_delta_time()
 	var _cos_step = cos(deg2rad(step_max_angle))
 	var motion = lv * physics_delta
 
-	#linecast(global_transform.origin, -global_transform.basis.y, 1, true, true)
-	var _rays = BitzLibrary.radial_multicast(get_world(), global_transform.origin, -global_transform.basis.z, -global_transform.basis.y, 8, 0.6, 1, true, true)
+	var _rays = BitzLibrary.radial_multicast(
+		get_world(), global_transform.origin, 
+		forward_direction, -global_transform.basis.y, 
+		2, BitzLibrary.get_cshape_radius($CollisionShape), 1, 0.0, 
+		true, true)
 
 	var future_collision = move_and_collide(motion, true, false, true) # Perform test collision first for prediction
 

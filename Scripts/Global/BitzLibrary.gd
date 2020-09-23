@@ -47,13 +47,13 @@ func linecast(var world, var start, var direction, var line_length = 1.0, var ig
 	return world.direct_space_state.intersect_ray(_p1, _p2, ignoredNodes)
 
 
-func radial_multicast(var world, var center, var forward, var direction, var count = 8, var radius = 1.0, var line_length = 1.0, var ignore_self = true, var debug_cast = false):
+func radial_multicast(var world, var center, var forward, var direction, var count = 8, var radius = 1.0, var line_length = 1.0, var phase = 0.0, var ignore_self = true, var debug_cast = false):
 	var _deltaTheta = (2 * PI) / count
 	var _rays = []
 
 	for n in count:
-		var xx = direction.cross(forward).normalized() * (cos(_deltaTheta * n) * radius)
-		var yy = forward * (sin(_deltaTheta * n) * radius)
+		var xx = direction.cross(forward).normalized() * (cos(_deltaTheta * n + phase) * radius)
+		var yy = forward * (sin(_deltaTheta * n + phase) * radius)
 		_rays.append(linecast(world, center + xx + yy, direction, line_length, ignore_self, debug_cast))
 
 	return _rays

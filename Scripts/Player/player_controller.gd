@@ -32,6 +32,7 @@ export(float, 1, 64, 1) var JUMP_SPEED = 18
 export(float, 1, 16, 0.25) var ACCEL = 2.7*2
 export(float, 1, 16, 0.25) var DEACCEL = 5.4*2
 var direction = Vector3()
+var last_direction = Vector3()
 var floor_rays = {
 	"Center": Object(),
 	"Front": Object(),
@@ -131,6 +132,9 @@ func process_movement(delta):
 	# This forces deacceleration only when the player is above the max speed
 	if abs(movement_vel.length()) >= MAX_SPEED - (MAX_SPEED / 10) and !raw_input_vector:
 		movement_vel = BitzLibrary.velocity_deacceleration(delta, DEACCEL, movement_vel)
+
+	if abs(movement_vel.length()) >= EPSILON:
+		last_direction = movement_vel.normalized()
 	
 	gravity_vel = move_and_slide_kinematic(
 		gravity_vel, average_normal,
@@ -140,7 +144,7 @@ func process_movement(delta):
 	)
 		#movement_vel
 		#-global_transform.basis.z
-	var vvv = step_up_stair(movement_vel, global_transform.basis.y, 5)
+	var vvv = step_up_stair(movement_vel, last_direction, global_transform.basis.y, 5)
 	if vvv:
 		pass
 	
