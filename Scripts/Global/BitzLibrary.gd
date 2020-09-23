@@ -71,8 +71,10 @@ func apply_input_to_velocity(DeltaTime, input_vect, vect, Acceleration, Deaccele
 		if temp_vec.length_squared() > 0.0:
 			# Change direction faster than only using acceleration, but never increase velocity magnitude.
 			var TimeScale = clamp(DeltaTime * TurnBoost, 0.0, 1.0)
-			temp_vec = temp_vec + (ControlAcceleration * temp_vec.length() - temp_vec) * TimeScale * DeltaTime * Deacceleration
+			temp_vec += (ControlAcceleration * temp_vec.length() - temp_vec) * TimeScale * DeltaTime * Deacceleration
+			#print(temp_vec)
 	else:
+		#print("EXCEEDED")
 		# Dampen velocity magnitude based on deceleration.
 		if temp_vec.length_squared() > 0.0:
 			var OldVelocity = temp_vec

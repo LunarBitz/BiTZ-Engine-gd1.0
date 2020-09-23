@@ -29,7 +29,6 @@ border_color = Color( 0, 0, 0, 0.392157 )
 [node name="KinematicBody" type="KinematicBody"]
 collision_layer = 32
 script = ExtResource( 1 )
-MAX_SPEED = 50.0
 
 [node name="HelperVel" type="Spatial" parent="."]
 

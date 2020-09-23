@@ -54,6 +54,11 @@ func apply_velocity_with_prediction(delta, vel, scope = 1.0):
 
 	if !future_col:
 		# We didn't hit anything, just move like normal
+		"""return move_and_slide_with_snap(
+			vel, get_floor_normal(), global_transform.basis.y,
+			false, 8
+		)"""
+		#print(vel)
 		return move_and_slide_kinematic_with_prediction_two(
 			vel, global_transform.basis.y,
 			8, 0.05, 

@@ -126,7 +126,7 @@ func process_movement(delta):
 	rotate_mesh_to_velocity(delta)
 	
 	movement_vel = BitzLibrary.apply_input_to_velocity(delta, direction, movement_vel, ACCEL, DEACCEL, 5.0, MAX_SPEED)
-	
+	#print(movement_vel)
 	movement_vel = apply_velocity_with_prediction(delta, movement_vel)
 	# With the predicted velocity, it's possible to get stuck at max speed even when no input is pressed
 	# This forces deacceleration only when the player is above the max speed
@@ -167,7 +167,7 @@ func handle_gravity(delta):
 
 	if is_on_floor() and valid_gravity:
 		grv_rst = false
-		gravity_scalar = delta * (GRAVITY * ((abs(movement_vel.length()) / (MAX_SPEED * 1.0)) * 100))
+		gravity_scalar = delta * (GRAVITY * ((abs(movement_vel.length()) / (MAX_SPEED * 1.0)) * 200))
 	elif !is_on_floor() and valid_gravity:
 		grv_rst = false
 		transform.origin = floor_rays["Snap"].get_collision_point() + (BitzLibrary.get_cshape_half_height($CollisionShape) * global_transform.basis.y)
